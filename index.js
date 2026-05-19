@@ -33,11 +33,19 @@ async function run() {
       const db = client.db("studynookdb");
       const roomsCollection = db.collection("rooms")
       
-      app.get("/rooms", async (req, res) => {
-          const cursor = roomsCollection.find();
-          const result = await cursor.toArray();
-          res.send(result);
-      })
+    app.get("/rooms", async (req, res) => {
+      const cursor = roomsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.get("/featured", async (req, res) => {
+      const cursor = roomsCollection.find().limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    
+    
       app.get("/rooms/:roomId", async (req, res) => {
           const { roomId } = req.params;
           const query = { _id: new ObjectId(roomId) }
