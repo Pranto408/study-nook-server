@@ -7,13 +7,10 @@ const app = express();
 app.use(cors());
 const port =process.env.PORT || 8080;
 
-// studynook
-// quE7iZ6vWu0VwdS2
 
 
 
-const uri =
-  "mongodb+srv://studynook:quE7iZ6vWu0VwdS2@cluster0.fepo71s.mongodb.net/?appName=Cluster0";
+const uri =process.env.MONGODB_URI;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
