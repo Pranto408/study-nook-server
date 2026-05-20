@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -9,9 +10,11 @@ const port =process.env.PORT || 8080;
 
 
 
-
-const uri =process.env.MONGODB_URI;
-
+const uri = process.env.MONGODB_URI;
+ const JWKS = createRemoteJWKSet(
+   new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+);
+//  console.log(JWKS);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -26,8 +29,30 @@ const logger = (req, res, next) => {
 };
 
 const verifyToken = async (req, res, next) => {
-  console.log(req.headers);
-  next();
+  const {authorization}=req.headers
+  const token = authorization?.split(" ")[1]
+  // console.log(token);
+  if (!token) {
+    return res.status(401).json({message:"Unauthorize"})
+  }
+
+   try {
+     const JWKS = createRemoteJWKSet(
+       new URL(`${process.env.CLIENT_URL}/api/auth/jwks`),
+     );
+     const { payload } = await jwtVerify(token, JWKS)
+ 
+     req.user = payload;
+     
+     next();
+   } catch (error) {
+     console.error("Token validation failed:", error);
+     return res.status(401).json({ message: "Unauthorize" });
+     
+   }
+
+
+  
 };
 async function run() {
   try {
@@ -56,6 +81,7 @@ async function run() {
       
       
       async (req, res) => {
+        console.log(req.user);
           const { roomId } = req.params;
           const query = { _id: new ObjectId(roomId) }
           const result = await roomsCollection.findOne(query);
