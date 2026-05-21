@@ -63,7 +63,7 @@ async function run() {
     // ────────────────────────────────────────────
     // ROOMS ROUTES
     // ────────────────────────────────────────────
-
+//cc
     // GET /rooms — All rooms, newest first (public)
     app.get("/rooms", async (req, res) => {
       try {
